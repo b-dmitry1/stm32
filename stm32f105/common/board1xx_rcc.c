@@ -88,6 +88,7 @@ static void rcc_update_frequences(int hse_freq, int input_hse, int hse_div, int 
 			break;
 	}
 
+	apb1clk = sysclk;
 	switch (apb1_div)
 	{
 		case 2:
@@ -98,6 +99,7 @@ static void rcc_update_frequences(int hse_freq, int input_hse, int hse_div, int 
 			break;
 	}
 
+	apb2clk = sysclk;
 	switch (apb2_div)
 	{
 		case 2:
@@ -250,9 +252,9 @@ void rcc_high_performance(int hse_freq)
 	{
 		// Find best PLL's div and mul for this XTAL
 #ifdef STM32F10X_CL
-		for (div = 1; div < 4; div++)
+		for (div = 1; div <= 4; div++)
 #else
-		for (div = 1; div < 2; div++)
+		for (div = 1; div <= 2; div++)
 #endif
 		{
 			for (mul = 9; mul >= 4; mul--)

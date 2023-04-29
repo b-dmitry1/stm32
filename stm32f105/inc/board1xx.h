@@ -6,6 +6,8 @@
 #include "board1xx_gpio.h"
 #include "board1xx_uart.h"
 #include "board1xx_spi.h"
+#include "board1xx_timer.h"
+#include "board1xx_flash.h"
 	
 #ifdef __cplusplus
 extern "C" {

@@ -1,7 +1,5 @@
 #include "board1xx.h"
 
-#define LED	PORTB, 12
-
 void wait(void)
 {
 	volatile int w;
