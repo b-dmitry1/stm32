@@ -43,8 +43,8 @@
 #define SPI1_MOSI_AF			5
 #define SPI1_SCK_AF			5
 
-#define SPI2_MISO			PORTC, 2
-#define SPI2_MOSI			PORTC, 3
+#define SPI2_MISO			PORTB, 14
+#define SPI2_MOSI			PORTB, 15
 #define SPI2_SCK			PORTB, 13
 
 #define SPI2_MISO_AF			5

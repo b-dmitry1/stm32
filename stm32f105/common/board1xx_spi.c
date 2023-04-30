@@ -55,7 +55,7 @@ int spi_readwrite(int port, unsigned short data)
 	temp = spi->DR;
 	(void)temp;
 	spi->DR = data;
-	while (spi->SR & SPI_SR_BSY);
+	while (!(spi->SR & SPI_SR_RXNE));
 	return spi->DR;
 }
 
@@ -76,8 +76,10 @@ void spi_send(int port, const void *buffer, int count)
 	(void)temp;
 	for (i = 0; i < count; i++)
 	{
+		temp = spi->DR;
+		(void)temp;
 		spi->DR = *data++;
-		while (spi->SR & SPI_SR_BSY);
+		while (!(spi->SR & SPI_SR_RXNE));
 	}
 }
 
@@ -99,7 +101,7 @@ void spi_recv(int port, void *buffer, int count)
 	for (i = 0; i < count; i++)
 	{
 		spi->DR = 0xFF;
-		while (spi->SR & SPI_SR_BSY);
+		while (!(spi->SR & SPI_SR_RXNE));
 		*data++ = spi->DR;
 	}
 }
