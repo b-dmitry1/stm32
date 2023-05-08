@@ -7,10 +7,10 @@ static TIM_TypeDef *tim_regs(int number)
 {
 	switch (number)
 	{
-		case 2: if (RCC->APB1ENR & RCC_APB1ENR_TIM2EN) return TIM2;
-		case 3: if (RCC->APB1ENR & RCC_APB1ENR_TIM3EN) return TIM3;
-		case 4: if (RCC->APB1ENR & RCC_APB1ENR_TIM4EN) return TIM4;
-		case 5: if (RCC->APB1ENR & RCC_APB1ENR_TIM5EN) return TIM5;
+		case 2: if (RCC->APB1ENR & RCC_APB1ENR_TIM2EN) return TIM2; break;
+		case 3: if (RCC->APB1ENR & RCC_APB1ENR_TIM3EN) return TIM3; break;
+		case 4: if (RCC->APB1ENR & RCC_APB1ENR_TIM4EN) return TIM4; break;
+		case 5: if (RCC->APB1ENR & RCC_APB1ENR_TIM5EN) return TIM5; break;
 	}
 	return (TIM_TypeDef *)0;
 }
@@ -145,4 +145,21 @@ void timer_init_periodic_ns(int number, unsigned long long period_ns, void (*cal
 
 	if (callback != 0)
 		timer_enable_irq(number);
+}
+
+void timer_disable(int number)
+{
+	TIM_TypeDef *regs;
+	
+	timer_disable_irq(number);
+
+	regs = tim_regs(number);
+	if (regs == (TIM_TypeDef *)0)
+	{
+		return;
+	}
+
+	regs->CR1 &= ~0x03FF;
+
+	timer_power_off(number);
 }

@@ -64,7 +64,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 #define FLASH_START			0x8000000ul
 #define FLASH_PAGE_SIZE			2048
-#define FLASH_NUM_PAGES			256
+#define FLASH_NUM_PAGES			64
+
+#define USER_START	0x4000
+#define USER_SIZE	0x1C000
 
 
 #endif

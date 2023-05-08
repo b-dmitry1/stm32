@@ -9,9 +9,10 @@ extern "C" {
 
 void flash_unlock(void);
 void flash_lock(void);
-void flash_erase_page(unsigned long ofs);
-int flash_write_page(unsigned long ofs, const void *data);
-void flash_read(unsigned long ofs, void *data, unsigned int count);
+void flash_erase_user_pages(unsigned int user_start_kb, unsigned int user_size_kb, unsigned int flash_page_size_kb);
+void flash_erase_user(void);
+int flash_write(unsigned int ofs, const void *data, unsigned int size);
+void flash_read(unsigned int ofs, void *data, unsigned int size);
 
 #ifdef __cplusplus
 }

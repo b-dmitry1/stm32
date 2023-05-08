@@ -37,6 +37,7 @@ static void uart_irq(int port)
 			u->rxn--;
 		}
 		data = u->usart->DR & u->datamask;
+#ifndef NO_GOBOOT
 		// Restart on "GoBoot" sequence
 		switch (data)
 		{
@@ -46,6 +47,7 @@ static void uart_irq(int port)
 			case 't': if (u->goboot == 5) { NVIC_SystemReset(); } break;
 			default: u->goboot = 0; break;
 		}
+#endif
 		u->rxbuf[u->rxwp++] = data;
 		u->rxwp %= u->rxsize;
 	}
@@ -133,7 +135,7 @@ void uart_open(int port, unsigned long speed, int datasize, int parity, int stop
 	switch (port)
 	{
 		case 1:
-			pin_conf(UART1_RXD, UART1_RXD_AF, PIN_MODE_AF, PIN_TYPE_PUSHPULL, PIN_PULL_UP, PIN_SPEED_MEDIUM);
+			pin_conf(UART1_RXD, UART1_RXD_AF, PIN_MODE_INPUT, PIN_TYPE_PUSHPULL, PIN_PULL_UP, PIN_SPEED_MEDIUM);
 			pin_conf(UART1_TXD, UART1_TXD_AF, PIN_MODE_AF, PIN_TYPE_PUSHPULL, PIN_PULL_FLOAT, PIN_SPEED_MEDIUM);
 			RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
 			u->rxbuf = uart1_rx;
@@ -154,7 +156,7 @@ void uart_open(int port, unsigned long speed, int datasize, int parity, int stop
 			u->usart = USART2;
 			break;
 		case 3:
-			pin_conf(UART3_RXD, UART3_RXD_AF, PIN_MODE_AF, PIN_TYPE_PUSHPULL, PIN_PULL_UP, PIN_SPEED_MEDIUM);
+			pin_conf(UART3_RXD, UART3_RXD_AF, PIN_MODE_INPUT, PIN_TYPE_PUSHPULL, PIN_PULL_UP, PIN_SPEED_MEDIUM);
 			pin_conf(UART3_TXD, UART3_TXD_AF, PIN_MODE_AF, PIN_TYPE_PUSHPULL, PIN_PULL_FLOAT, PIN_SPEED_MEDIUM);
 			RCC->APB1ENR |= RCC_APB1ENR_USART3EN;
 			u->rxbuf = uart3_rx;
@@ -183,8 +185,6 @@ void uart_open(int port, unsigned long speed, int datasize, int parity, int stop
 	u->rs485_port = rs485_port;
 	u->rs485_pin = rs485_pin;
 
-	clk = 36000000;
-	
 	coeff = clk / 16ul;
 	coeff = coeff * 100ul / speed;
 	
@@ -243,7 +243,7 @@ void uart_close(int port)
 	}
 }
 
-void uart_set_timeouts(int port, unsigned long rxtimeout, unsigned long rxinterval, unsigned long txtimeout)
+void uart_set_timeouts(int port, int rxtimeout, int rxinterval, int txtimeout)
 {
 	if (port < 1 || port > NUM_UARTS)
 		return;
@@ -317,6 +317,8 @@ int uart_rx_count(int port)
 {
 	if (port < 1 || port > NUM_UARTS)
 		return 0;
+	if (!(uarts_open & (1 << port)))
+		return -1;
 	return uarts[port - 1].rxn;
 }
 
@@ -336,6 +338,7 @@ int uart_blocking_recv_byte(int port)
 		uart_enable_irq(port);
 		if (n != 0)
 			break;
+		msleep(0);
 	}
 	uart_disable_irq(port);
 	res = u->rxbuf[u->rxrp++];
@@ -345,30 +348,42 @@ int uart_blocking_recv_byte(int port)
 	return res;
 }
 
-/*
-int uart_recv_byte(int port)
+int uart_recv_byte_timeout(int port, int timeout)
 {
 	int res, n;
 	volatile uart_struct_t *u;
-	unsigned long t;
+	int t;
 	if (port < 1 || port > NUM_UARTS)
 		return -1;
+	if (!(uarts_open & (1 << port)))
+		return -1;
 	u = &uarts[port - 1];
-	while (1)
+	if (timeout == -1)
+		timeout = u->rxtimeout;
+	else if (timeout == -2)
+		timeout = u->rxinterval;
+	if (u->rs485_port >= 0)
+	{
+		/* Wait while RS485 transmit buffer is not empty */
+		for (;;)
+		{
+			uart_disable_irq(port);
+			n = u->txn;
+			uart_enable_irq(port);
+			if (n == 0)
+				break;
+		}
+	}
+	for (t = 0; ; t++)
 	{
 		uart_disable_irq(port);
-		n = u->txn;
+		n = u->rxn;
 		uart_enable_irq(port);
-		if (n == 0)
+		if (n > 0)
 			break;
-		Sleep(1);
-	}
-	t = GetTickCount();
-	while (u->rxn <= 0)
-	{
-		if (GetTickCount() - t > u->rxtimeout)
+		if (t >= timeout)
 			return -1;
-		Sleep(1);
+		msleep(1);
 	}
 	uart_disable_irq(port);
 	res = u->rxbuf[u->rxrp++];
@@ -378,46 +393,35 @@ int uart_recv_byte(int port)
 	return res;
 }
 
-int uart_recv(int port, void *data, int count)
+int uart_recv_byte(int port)
 {
-	unsigned char *p = (unsigned char *)data;
-	unsigned long t;
-	int res = 0;
-	int n;
-	volatile uart_struct_t *u;
-	if (port < 1 || port > NUM_UARTS)
-		return 0;
-	u = &uarts[port - 1];
-	while (1)
-	{
-		uart_disable_irq(port);
-		n = u->txn;
-		uart_enable_irq(port);
-		if (n == 0)
-			break;
-		Sleep(1);
-	}
-	t = GetTickCount();
-	while (uart_rx_count(port) == 0)
-	{
-		if (GetTickCount() - t > u->rxtimeout)
-			return 0;
-		Sleep(1);
-	}
-	*p++ = uart_recv_byte(port);
-	res++;
-	while (res < count)
-	{
-		t = GetTickCount();
-		while (uart_rx_count(port) == 0)
-		{
-			if (GetTickCount() - t > u->rxinterval)
-				return res;
-			Sleep(1);
-		}
-		*p++ = uart_recv_byte(port);
-		res++;
-	}
-	return res;
+	return uart_recv_byte_timeout(port, -1);
 }
-*/
+
+int uart_recv(int port, void *buffer, int count)
+{
+	unsigned char *p = (unsigned char *)buffer;
+	int ch, n = 0;
+
+	if (count <= 0)
+		return 0;
+
+	ch = uart_recv_byte(port);
+	if (ch < 0)
+		return 0;
+
+	*p++ = ch;
+	count--;
+	n++;
+
+	while (count --> 0)
+	{
+		ch = uart_recv_byte_timeout(port, -2);
+		if (ch < 0)
+			return n;
+		*p++ = ch;
+		n++;
+	}
+
+	return n;
+}

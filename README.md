@@ -1,5 +1,7 @@
-# STM32 examples
-Small STM32 examples for my friends
+# STM32 small library and examples
+* Small library for STM32F103, STM32F105(107), STM32F405(407, 429, 439).
+* Usage examples.
+* Bootloader for STM32F10X.
 
 ## Setting up the environment
 

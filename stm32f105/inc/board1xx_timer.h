@@ -13,6 +13,9 @@ extern "C" {
 #endif
 
 void timer_init_periodic_ns(int number, unsigned long long period_ns, void (*callback)(void));
+void timer_disable(int number);
+void timer_enable_irq(int number);
+void timer_disable_irq(int number);
 
 #ifdef __cplusplus
 }
