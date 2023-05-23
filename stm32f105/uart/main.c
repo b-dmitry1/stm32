@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "board1xx.h"
+#include "board.h"
 
 int main(void)
 {

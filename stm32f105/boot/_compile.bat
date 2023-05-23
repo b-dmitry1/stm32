@@ -11,28 +11,17 @@ set "c="
 for %%f in ("*.c") do (
   set c=!c!%%f 
 )
-for %%f in ("..\common\*.c") do (
+for %%f in ("*.cpp") do (
+  set c=!c!%%f 
+)
+for %%f in ("..\..\libstm32f10x\*.c") do (
   set c=!c!%%f 
 )
 
 for %%f in (!c!) do (
   arm-none-eabi-g++ -fmax-errors=3 -x none -mcpu=cortex-m3 -mthumb -mfloat-abi=soft -fsigned-char -O2 -ffunction-sections -fdata-sections -fno-exceptions -mlittle-endian ^
-  -I. -I.. -I..\inc -T..\memory.ld -g -lm -nostartfiles -c ^
-  -DSTM32F10X_CL -DSTM32F1XX -DNO_GOBOOT -Wall ^
-  %%f -o bin\%%~nf.o
-
-  if errorlevel 1 goto :end
-)
-
-set "cpp="
-for %%f in ("*.cpp") do (
-  set cpp=!cpp!%%f 
-)
-
-for %%f in (!cpp!) do (
-  arm-none-eabi-g++ -fmax-errors=3 -x none -mcpu=cortex-m3 -mthumb -mfloat-abi=soft -fsigned-char -O2 -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti -mlittle-endian ^
-  -I. -I.. -I..\inc -T..\memory.ld -g -lm -nostartfiles -c ^
-  -DSTM32F10X_CL -DSTM32F1XX -DNO_GOBOOT -Wall ^
+  -I. -I.. -I..\..\inc -I..\..\inc\stm32f10x -T..\memory.ld -g -lm -nostartfiles -c ^
+  -DSTM32F10X_CL -DSTM32F1XX -Wall ^
   %%f -o bin\%%~nf.o
 
   if errorlevel 1 goto :end
@@ -46,7 +35,7 @@ for %%f in ("bin\*.o") do (
 rem -Wl,-Map=a.map
 arm-none-eabi-g++ -x none -mcpu=cortex-m3 -mthumb -mfloat-abi=soft -fsigned-char -O2 -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti -mlittle-endian -fcommon ^
 -T..\memory.ld -g -lm -nostartfiles -Wl,-Map,bin\build.map ^
--DSTM32F10X_CL -DSTM32F1XX -DNO_GOBOOT -Wall -o bin\a.out ^
+-DSTM32F10X_CL -DSTM32F1XX -Wall -o bin\a.out ^
 !obj!
 
 
@@ -56,4 +45,3 @@ arm-none-eabi-objcopy -O ihex bin\a.out bin\a.hex
 arm-none-eabi-objcopy -O binary bin\a.out bin\a.bin
 
 :end
-pause

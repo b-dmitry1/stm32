@@ -6,7 +6,7 @@
 #include "board.h"
 
 
-#define LED	PORTB, 12
+#define LED	PORTC, 13
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -65,7 +65,7 @@
 // Flash
 ///////////////////////////////////////////////////////////////////////////////
 #define FLASH_START			0x8000000ul
-#define FLASH_PAGE_SIZE			2048
+#define FLASH_PAGE_SIZE			1024
 #define FLASH_NUM_PAGES			64
 
 #define USER_START	0x4000

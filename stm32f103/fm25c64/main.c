@@ -34,7 +34,7 @@ void fram_dump(int address)
 
 int main(void)
 {
-	rcc_high_performance(XTAL_16MHZ);
+	rcc_high_performance(XTAL_8MHZ);
 
 	uart_open(2, 115200, 8, NOPARITY, ONESTOPBIT, NO485);
 

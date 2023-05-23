@@ -1,4 +1,4 @@
-#include "board103.h"
+#include "board.h"
 
 void wait(void)
 {
@@ -8,15 +8,15 @@ void wait(void)
 
 int main(void)
 {
-	board_init();
+	rcc_high_performance(XTAL_8MHZ);
 
-	set_pin_mode(GPIOC, 13, OUTPUT);
+	pin_conf_output(LED);
 
 	for (;;)
 	{
-		clr_pin(GPIOC, 13);
+		pin_low(LED);
 		wait();
-		set_pin(GPIOC, 13);
+		pin_high(LED);
 		wait();
 	}
 }

@@ -1,4 +1,4 @@
-#include "board1xx.h"
+#include "board.h"
 
 void wait(void)
 {
