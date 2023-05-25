@@ -1,4 +1,4 @@
-#include "board4xx.h"
+#include "board.h"
 
 #define LED	PORTD, 11
 
@@ -10,8 +10,6 @@ void wait(void)
 
 int main(void)
 {
-	board_init();
-
 	pin_conf_output(LED);
 
 	for (;;)

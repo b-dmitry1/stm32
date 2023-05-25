@@ -1,13 +1,11 @@
 #include "stm32f4xx.h"
-#include "board4xx.h"
-
-#define NUM_PORTS	6
+#include "board.h"
 
 static unsigned int uarts_open = 0;
 
 static const char *hex = "0123456789ABCDEF";
 
-volatile uart_struct_t uarts[NUM_PORTS];
+volatile uart_struct_t uarts[NUM_UARTS];
 
 volatile unsigned char uart1_rx[UART1_RX_SIZE];
 volatile unsigned char uart1_tx[UART1_TX_SIZE];
@@ -21,6 +19,13 @@ volatile unsigned char uart5_rx[UART5_RX_SIZE];
 volatile unsigned char uart5_tx[UART5_TX_SIZE];
 volatile unsigned char uart6_rx[UART6_RX_SIZE];
 volatile unsigned char uart6_tx[UART6_TX_SIZE];
+
+int stdio_uart = 1;
+
+void select_stdio_uart(int port)
+{
+	stdio_uart = port >= 1 && port <= NUM_UARTS ? port : stdio_uart;
+}
 
 static void uart_irq(int port)
 {
@@ -134,7 +139,7 @@ void uart_open(int port, unsigned long speed, int datasize, int parity, int stop
 	volatile uart_struct_t *u;
 	unsigned long clk = APB1_CLK;
 	unsigned long coeff, fr;
-	if (port < 1 || port > NUM_PORTS)
+	if (port < 1 || port > NUM_UARTS)
 		return;
 	u = &uarts[port - 1];
 
@@ -281,7 +286,7 @@ void uart_open(int port, unsigned long speed, int datasize, int parity, int stop
 
 void uart_close(int port)
 {
-	if (port < 1 || port > NUM_PORTS)
+	if (port < 1 || port > NUM_UARTS)
 		return;
 
 	uarts_open &= ~(1 << port);
@@ -299,9 +304,9 @@ void uart_close(int port)
 	}
 }
 
-void uart_set_timeouts(int port, unsigned long rxtimeout, unsigned long rxinterval, unsigned long txtimeout)
+void uart_set_timeouts(int port, int rxtimeout, int rxinterval, int txtimeout)
 {
-	if (port < 1 || port > NUM_PORTS)
+	if (port < 1 || port > NUM_UARTS)
 		return;
 	uarts[port - 1].rxtimeout = rxtimeout;
 	uarts[port - 1].rxinterval = rxinterval;
@@ -311,7 +316,7 @@ void uart_set_timeouts(int port, unsigned long rxtimeout, unsigned long rxinterv
 void uart_send_byte(int port, unsigned char ch)
 {
 	volatile uart_struct_t *u;
-	if (port < 1 || port > NUM_PORTS)
+	if (port < 1 || port > NUM_UARTS)
 		return;
 	if (!(uarts_open & (1 << port)))
 		return;
@@ -376,30 +381,23 @@ int uart_rx_count(int port)
 	return uarts[port - 1].rxn;
 }
 
-/*
-int uart_recv_byte(int port)
+int uart_blocking_recv_byte(int port)
 {
 	int res, n;
 	volatile uart_struct_t *u;
-	unsigned long t;
-	if (port < 1 || port > NUM_PORTS)
+	if (port < 1 || port > NUM_UARTS)
+		return -1;
+	if (!(uarts_open & (1 << port)))
 		return -1;
 	u = &uarts[port - 1];
 	while (1)
 	{
 		uart_disable_irq(port);
-		n = u->txn;
+		n = u->rxn;
 		uart_enable_irq(port);
-		if (n == 0)
+		if (n != 0)
 			break;
-		Sleep(1);
-	}
-	t = GetTickCount();
-	while (u->rxn <= 0)
-	{
-		if (GetTickCount() - t > u->rxtimeout)
-			return -1;
-		Sleep(1);
+		msleep(0);
 	}
 	uart_disable_irq(port);
 	res = u->rxbuf[u->rxrp++];
@@ -409,46 +407,80 @@ int uart_recv_byte(int port)
 	return res;
 }
 
-int uart_recv(int port, void *data, int count)
+int uart_recv_byte_timeout(int port, int timeout)
 {
-	unsigned char *p = (unsigned char *)data;
-	unsigned long t;
-	int res = 0;
-	int n;
+	int res, n;
 	volatile uart_struct_t *u;
-	if (port < 1 || port > NUM_PORTS)
-		return 0;
+	int t;
+	if (port < 1 || port > NUM_UARTS)
+		return -1;
+	if (!(uarts_open & (1 << port)))
+		return -1;
 	u = &uarts[port - 1];
-	while (1)
+	if (timeout == -1)
+		timeout = u->rxtimeout;
+	else if (timeout == -2)
+		timeout = u->rxinterval;
+	if (u->rs485_port >= 0)
+	{
+		/* Wait while RS485 transmit buffer is not empty */
+		for (;;)
+		{
+			uart_disable_irq(port);
+			n = u->txn;
+			uart_enable_irq(port);
+			if (n == 0)
+				break;
+		}
+	}
+	for (t = 0; ; t++)
 	{
 		uart_disable_irq(port);
-		n = u->txn;
+		n = u->rxn;
 		uart_enable_irq(port);
-		if (n == 0)
+		if (n > 0)
 			break;
-		Sleep(1);
+		if (t >= timeout)
+			return -1;
+		msleep(1);
 	}
-	t = GetTickCount();
-	while (uart_rx_count(port) == 0)
-	{
-		if (GetTickCount() - t > u->rxtimeout)
-			return 0;
-		Sleep(1);
-	}
-	*p++ = uart_recv_byte(port);
-	res++;
-	while (res < count)
-	{
-		t = GetTickCount();
-		while (uart_rx_count(port) == 0)
-		{
-			if (GetTickCount() - t > u->rxinterval)
-				return res;
-			Sleep(1);
-		}
-		*p++ = uart_recv_byte(port);
-		res++;
-	}
+	uart_disable_irq(port);
+	res = u->rxbuf[u->rxrp++];
+	u->rxrp %= u->rxsize;
+	u->rxn--;
+	uart_enable_irq(port);
 	return res;
 }
-*/
+
+int uart_recv_byte(int port)
+{
+	return uart_recv_byte_timeout(port, -1);
+}
+
+int uart_recv(int port, void *buffer, int count)
+{
+	unsigned char *p = (unsigned char *)buffer;
+	int ch, n = 0;
+
+	if (count <= 0)
+		return 0;
+
+	ch = uart_recv_byte(port);
+	if (ch < 0)
+		return 0;
+
+	*p++ = ch;
+	count--;
+	n++;
+
+	while (count --> 0)
+	{
+		ch = uart_recv_byte_timeout(port, -2);
+		if (ch < 0)
+			return n;
+		*p++ = ch;
+		n++;
+	}
+
+	return n;
+}

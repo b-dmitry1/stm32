@@ -1,5 +1,5 @@
 #include "stm32f4xx.h"
-#include "board4xx.h"
+#include "board.h"
 
 static SPI_TypeDef *spi_regs(int port)
 {
@@ -79,12 +79,12 @@ void spi_send(int port, const void *buffer, int count)
 		return;
 	}
 
-	temp = spi->DR;
-	(void)temp;
 	for (i = 0; i < count; i++)
 	{
+		temp = spi->DR;
+		(void)temp;
 		spi->DR = *data++;
-		while (spi->SR & SPI_SR_BSY);
+		while (!(spi->SR & SPI_SR_RXNE));
 	}
 }
 

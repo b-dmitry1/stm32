@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "board4xx.h"
+#include "board.h"
 
 void wait(void)
 {
@@ -10,8 +10,6 @@ void wait(void)
 int main(void)
 {
 	int n = 0;
-
-	board_init();
 
 	uart_open(1, 115200, 8, NOPARITY, ONESTOPBIT, NO485);
 

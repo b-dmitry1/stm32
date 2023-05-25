@@ -4,7 +4,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include "config.h"
-#include "board4xx.h"
+#include "board.h"
 
 static char heap[HEAP_SIZE];
 
@@ -12,7 +12,7 @@ static char* _cur_brk = heap;
 
 void sendchar(char ch)
 {
-	uart_send_byte(STDOUT_UART, ch);
+	uart_send_byte(stdio_uart, ch);
 }
 
 int _read_r(struct _reent* r, int file, char* ptr, int len)

@@ -1,6 +1,5 @@
 #include <stdint.h>
-#include "system_stm32f4xx.h"
-#include "board4xx.h"
+#include "board.h"
 
 extern unsigned long _sidata;
 extern unsigned long _sdata;
@@ -60,8 +59,6 @@ void Reset_Handler(void)
 	{
 		(*ctor)();
 	}
-
-	SystemInit();
 
 	board_init();
 

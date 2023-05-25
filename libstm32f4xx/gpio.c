@@ -1,5 +1,5 @@
 #include "stm32f4xx.h"
-#include "board4xx.h"
+#include "board.h"
 
 static GPIO_TypeDef *gpio(int port)
 {
