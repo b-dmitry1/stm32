@@ -16,7 +16,6 @@ extern int apb2clk;
 extern "C" {
 #endif
 
-int rcc_configure_pll(int hse_freq, int input_hse, int hse_div, int pll_mul, int ahb_div, int apb1_div, int apb2_div);
 void rcc_high_performance(int hse_freq);
 
 #ifdef __cplusplus

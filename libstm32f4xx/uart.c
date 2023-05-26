@@ -137,7 +137,7 @@ void uart_enable_irq(int port)
 void uart_open(int port, unsigned long speed, int datasize, int parity, int stopbits, int rs485_port, int rs485_pin)
 {
 	volatile uart_struct_t *u;
-	unsigned long clk = APB1_CLK;
+	unsigned long clk = apb1clk;
 	unsigned long coeff, fr;
 	if (port < 1 || port > NUM_UARTS)
 		return;
@@ -170,7 +170,7 @@ void uart_open(int port, unsigned long speed, int datasize, int parity, int stop
 			u->txbuf = uart1_tx;
 			u->txsize = sizeof(uart1_tx);
 			u->usart = USART1;
-			clk = APB2_CLK;
+			clk = apb2clk;
 			break;
 		case 2:
 			pin_conf(UART2_RXD, UART2_RXD_AF, PIN_MODE_AF, PIN_TYPE_PUSHPULL, PIN_PULL_FLOAT, PIN_SPEED_MEDIUM);
@@ -221,7 +221,7 @@ void uart_open(int port, unsigned long speed, int datasize, int parity, int stop
 			u->txbuf = uart6_tx;
 			u->txsize = sizeof(uart6_tx);
 			u->usart = USART6;
-			clk = APB2_CLK;
+			clk = apb2clk;
 			break;
 		default:
 			return;

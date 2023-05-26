@@ -9,11 +9,14 @@ void board_init(void)
 	RCC->APB1ENR |= RCC_APB1ENR_PWREN;
 
 	// SYSCFG
-	RCC->APB2ENR |= (1 << 14);
+	RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
+
+	// Prefetcher and caches
+	FLASH->ACR |= FLASH_ACR_PRFTEN | FLASH_ACR_ICEN | FLASH_ACR_DCEN;
 	
 	// Compensation Cell
-	SYSCFG->CMPCR |= 0x01;
-	while (!(SYSCFG->CMPCR & 0x100));
+	SYSCFG->CMPCR |= SYSCFG_CMPCR_CMP_PD;
+	while (!(SYSCFG->CMPCR & SYSCFG_CMPCR_READY));
 	
 	memset((void *)uarts, 0, sizeof(uarts));
 }
