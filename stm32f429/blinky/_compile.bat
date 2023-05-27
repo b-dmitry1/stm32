@@ -20,7 +20,7 @@ for %%f in ("..\..\libstm32f4xx\*.c") do (
 
 for %%f in (!c!) do (
   arm-none-eabi-g++ -fmax-errors=3 -x none -mcpu=cortex-m3 -mthumb -mfloat-abi=soft -fsigned-char -O2 -ffunction-sections -fdata-sections -fno-exceptions -mlittle-endian ^
-  -I. -I.. -I..\..\inc -I..\..\inc\stm32f4xx -T..\memory.ld -g -lm -nostartfiles -c ^
+  -I. -I.. -I..\..\inc -I..\..\inc\stm32f4xx -T..\..\libstm32f4xx\stm32f429.ld -g -lm -nostartfiles -c ^
   -DSTM32F429_439xx -DSTM32F4XX -Wall ^
   %%f -o bin\%%~nf.o
 
@@ -34,7 +34,7 @@ for %%f in ("bin\*.o") do (
 
 rem -Wl,-Map=a.map
 arm-none-eabi-g++ -x none -mcpu=cortex-m3 -mthumb -mfloat-abi=soft -fsigned-char -O2 -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti -mlittle-endian -fcommon ^
--T..\memory.ld -g -lm -nostartfiles -Wl,-Map,bin\build.map ^
+-T..\..\libstm32f4xx\stm32f429.ld -g -lm -nostartfiles -Wl,-Map,bin\build.map ^
 -DSTM32F429_439xx -DSTM32F4XX-Wall -o bin\a.out ^
 !obj!
 
