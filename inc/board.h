@@ -1,7 +1,15 @@
 #ifndef BOARD_H
 #define BOARD_H
 
-#include "board_config.h"
+#include "config.h"
+
+#ifdef STM32F1XX
+#include "stm32f10x.h"
+#endif
+
+#ifdef STM32F4XX
+#include "stm32f4xx.h"
+#endif
 
 #include "rcc.h"
 #include "gpio.h"

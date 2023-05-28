@@ -1,4 +1,4 @@
-#include "stm32f10x.h"
+#include "stm32f4xx.h"
 #include "board.h"
 
 static void (*timer_callbacks[10])(void) = { 0 };
@@ -16,7 +16,7 @@ static TIM_TypeDef *tim_regs(int number)
 
 static void timer_irq(int number)
 {
-	if (&timer_callbacks[number])
+	if (&timer_callbacks[number] != 0)
 		timer_callbacks[number]();
 }
 

@@ -15,10 +15,25 @@ void sendchar(char ch)
 	uart_send_byte(stdio_uart, ch);
 }
 
+int recvchar(void)
+{
+	return uart_blocking_recv_byte(stdio_uart);
+}
+
 int _read_r(struct _reent* r, int file, char* ptr, int len)
 {
-	errno = EINVAL;
-	return -1;
+	int i, ch;
+
+	for (i = 0; i < len; i++)
+	{
+		ch = recvchar();
+		if (ch < 0) break;
+		if (ch == '\r') ch = '\n';
+		sendchar(ch);
+		ptr[i] = (char)ch;
+	}
+
+	return i;
 }
 
 int _write_r(struct _reent* r, int file, char* ptr, int len)

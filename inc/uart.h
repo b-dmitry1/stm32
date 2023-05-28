@@ -40,7 +40,7 @@ extern "C" {
 #endif
 
 // port: 1 - UART1, 2 - UART2, ...
-void uart_open(int port, unsigned long speed, int datasize, int parity, int stopbits, int rs485_port, int rs485_pin);
+void uart_open(int port, unsigned long speed, int datasize, int parity, int stopbits, int rxd_port, int rxd_pin, int txd_port, int txd_pin, int rs485_port, int rs485_pin);
 void uart_close(int port);
 void uart_set_timeouts(int port, int rxtimeout, int rxinterval, int txtimeout);
 void uart_send_byte(int port, unsigned char ch);

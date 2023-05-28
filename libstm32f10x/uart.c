@@ -110,7 +110,7 @@ void uart_enable_irq(int port)
 	}
 }
 
-void uart_open(int port, unsigned long speed, int datasize, int parity, int stopbits, int rs485_port, int rs485_pin)
+void uart_open(int port, unsigned long speed, int datasize, int parity, int stopbits, int rxd_port, int rxd_pin, int txd_port, int txd_pin, int rs485_port, int rs485_pin)
 {
 	volatile uart_struct_t *u;
 	unsigned long clk = apb1clk;
@@ -131,12 +131,13 @@ void uart_open(int port, unsigned long speed, int datasize, int parity, int stop
 	u->datamask = 0xFF;
 	if (datasize == 7)
 		u->datamask = 0x7F;
-	
+
+	pin_conf(rxd_port, rxd_pin, 0, PIN_MODE_INPUT, PIN_TYPE_PUSHPULL, PIN_PULL_UP, PIN_SPEED_MEDIUM);
+	pin_conf(txd_port, txd_pin, 0, PIN_MODE_AF, PIN_TYPE_PUSHPULL, PIN_PULL_FLOAT, PIN_SPEED_MEDIUM);
+
 	switch (port)
 	{
 		case 1:
-			pin_conf(UART1_RXD, UART1_RXD_AF, PIN_MODE_INPUT, PIN_TYPE_PUSHPULL, PIN_PULL_UP, PIN_SPEED_MEDIUM);
-			pin_conf(UART1_TXD, UART1_TXD_AF, PIN_MODE_AF, PIN_TYPE_PUSHPULL, PIN_PULL_FLOAT, PIN_SPEED_MEDIUM);
 			RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
 			u->rxbuf = uart1_rx;
 			u->rxsize = sizeof(uart1_rx);
@@ -146,8 +147,6 @@ void uart_open(int port, unsigned long speed, int datasize, int parity, int stop
 			clk = apb2clk;
 			break;
 		case 2:
-			pin_conf(UART2_RXD, UART2_RXD_AF, PIN_MODE_INPUT, PIN_TYPE_PUSHPULL, PIN_PULL_UP, PIN_SPEED_MEDIUM);
-			pin_conf(UART2_TXD, UART2_TXD_AF, PIN_MODE_AF, PIN_TYPE_PUSHPULL, PIN_PULL_FLOAT, PIN_SPEED_MEDIUM);
 			RCC->APB1ENR |= RCC_APB1ENR_USART2EN;
 			u->rxbuf = uart2_rx;
 			u->rxsize = sizeof(uart2_rx);
@@ -156,8 +155,6 @@ void uart_open(int port, unsigned long speed, int datasize, int parity, int stop
 			u->usart = USART2;
 			break;
 		case 3:
-			pin_conf(UART3_RXD, UART3_RXD_AF, PIN_MODE_INPUT, PIN_TYPE_PUSHPULL, PIN_PULL_UP, PIN_SPEED_MEDIUM);
-			pin_conf(UART3_TXD, UART3_TXD_AF, PIN_MODE_AF, PIN_TYPE_PUSHPULL, PIN_PULL_FLOAT, PIN_SPEED_MEDIUM);
 			RCC->APB1ENR |= RCC_APB1ENR_USART3EN;
 			u->rxbuf = uart3_rx;
 			u->rxsize = sizeof(uart3_rx);
@@ -282,13 +279,16 @@ void uart_send(int port, const void *data, int size)
 void uart_send_str(int port, const char *s)
 {
 	while (*s)
+	{
+		if (*s == '\n')
+			uart_send_byte(port, '\r');
 		uart_send_byte(port, *s++);
+	}
 }
 
 void uart_send_ln(int port, const char *s)
 {
-	while (*s)
-		uart_send_byte(port, *s++);
+	uart_send_str(port, s);
 	uart_send_byte(port, '\r');
 	uart_send_byte(port, '\n');
 }

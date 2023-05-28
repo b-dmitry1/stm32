@@ -42,6 +42,7 @@ static void uart_irq(int port)
 			u->rxn--;
 		}
 		data = u->usart->DR & u->datamask;
+#ifndef NO_GOBOOT
 		// Restart on "GoBoot" sequence
 		switch (data)
 		{
@@ -51,6 +52,7 @@ static void uart_irq(int port)
 			case 't': if (u->goboot == 5) { NVIC_SystemReset(); } break;
 			default: u->goboot = 0; break;
 		}
+#endif
 		u->rxbuf[u->rxwp++] = data;
 		u->rxwp %= u->rxsize;
 	}
@@ -134,11 +136,12 @@ void uart_enable_irq(int port)
 	}
 }
 
-void uart_open(int port, unsigned long speed, int datasize, int parity, int stopbits, int rs485_port, int rs485_pin)
+void uart_open(int port, unsigned long speed, int datasize, int parity, int stopbits, int rxd_port, int rxd_pin, int txd_port, int txd_pin, int rs485_port, int rs485_pin)
 {
 	volatile uart_struct_t *u;
 	unsigned long clk = apb1clk;
 	unsigned long coeff, fr;
+	int af = port <= 3 ? 7 : 8;
 	if (port < 1 || port > NUM_UARTS)
 		return;
 	u = &uarts[port - 1];
@@ -158,12 +161,13 @@ void uart_open(int port, unsigned long speed, int datasize, int parity, int stop
 	u->datamask = 0xFF;
 	if (datasize == 7)
 		u->datamask = 0x7F;
-	
+
+	pin_conf(rxd_port, rxd_pin, af, PIN_MODE_AF, PIN_TYPE_PUSHPULL, PIN_PULL_FLOAT, PIN_SPEED_MEDIUM);
+	pin_conf(txd_port, txd_pin, af, PIN_MODE_AF, PIN_TYPE_PUSHPULL, PIN_PULL_FLOAT, PIN_SPEED_MEDIUM);
+
 	switch (port)
 	{
 		case 1:
-			pin_conf(UART1_RXD, UART1_RXD_AF, PIN_MODE_AF, PIN_TYPE_PUSHPULL, PIN_PULL_FLOAT, PIN_SPEED_MEDIUM);
-			pin_conf(UART1_TXD, UART1_TXD_AF, PIN_MODE_AF, PIN_TYPE_PUSHPULL, PIN_PULL_FLOAT, PIN_SPEED_MEDIUM);
 			RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
 			u->rxbuf = uart1_rx;
 			u->rxsize = sizeof(uart1_rx);
@@ -173,8 +177,6 @@ void uart_open(int port, unsigned long speed, int datasize, int parity, int stop
 			clk = apb2clk;
 			break;
 		case 2:
-			pin_conf(UART2_RXD, UART2_RXD_AF, PIN_MODE_AF, PIN_TYPE_PUSHPULL, PIN_PULL_FLOAT, PIN_SPEED_MEDIUM);
-			pin_conf(UART2_TXD, UART2_TXD_AF, PIN_MODE_AF, PIN_TYPE_PUSHPULL, PIN_PULL_FLOAT, PIN_SPEED_MEDIUM);
 			RCC->APB1ENR |= RCC_APB1ENR_USART2EN;
 			u->rxbuf = uart2_rx;
 			u->rxsize = sizeof(uart2_rx);
@@ -183,8 +185,6 @@ void uart_open(int port, unsigned long speed, int datasize, int parity, int stop
 			u->usart = USART2;
 			break;
 		case 3:
-			pin_conf(UART3_RXD, UART3_RXD_AF, PIN_MODE_AF, PIN_TYPE_PUSHPULL, PIN_PULL_FLOAT, PIN_SPEED_MEDIUM);
-			pin_conf(UART3_TXD, UART3_TXD_AF, PIN_MODE_AF, PIN_TYPE_PUSHPULL, PIN_PULL_FLOAT, PIN_SPEED_MEDIUM);
 			RCC->APB1ENR |= RCC_APB1ENR_USART3EN;
 			u->rxbuf = uart3_rx;
 			u->rxsize = sizeof(uart3_rx);
@@ -193,8 +193,6 @@ void uart_open(int port, unsigned long speed, int datasize, int parity, int stop
 			u->usart = USART3;
 			break;
 		case 4:
-			pin_conf(UART4_RXD, UART4_RXD_AF, PIN_MODE_AF, PIN_TYPE_PUSHPULL, PIN_PULL_FLOAT, PIN_SPEED_MEDIUM);
-			pin_conf(UART4_TXD, UART4_TXD_AF, PIN_MODE_AF, PIN_TYPE_PUSHPULL, PIN_PULL_FLOAT, PIN_SPEED_MEDIUM);
 			RCC->APB1ENR |= RCC_APB1ENR_UART4EN;
 			u->rxbuf = uart4_rx;
 			u->rxsize = sizeof(uart4_rx);
@@ -203,8 +201,6 @@ void uart_open(int port, unsigned long speed, int datasize, int parity, int stop
 			u->usart = UART4;
 			break;
 		case 5:
-			pin_conf(UART5_RXD, UART5_RXD_AF, PIN_MODE_AF, PIN_TYPE_PUSHPULL, PIN_PULL_FLOAT, PIN_SPEED_MEDIUM);
-			pin_conf(UART5_TXD, UART5_TXD_AF, PIN_MODE_AF, PIN_TYPE_PUSHPULL, PIN_PULL_FLOAT, PIN_SPEED_MEDIUM);
 			RCC->APB1ENR |= RCC_APB1ENR_UART5EN;
 			u->rxbuf = uart5_rx;
 			u->rxsize = sizeof(uart5_rx);
@@ -213,8 +209,6 @@ void uart_open(int port, unsigned long speed, int datasize, int parity, int stop
 			u->usart = UART5;
 			break;
 		case 6:
-			pin_conf(UART6_RXD, UART6_RXD_AF, PIN_MODE_AF, PIN_TYPE_PUSHPULL, PIN_PULL_FLOAT, PIN_SPEED_MEDIUM);
-			pin_conf(UART6_TXD, UART6_TXD_AF, PIN_MODE_AF, PIN_TYPE_PUSHPULL, PIN_PULL_FLOAT, PIN_SPEED_MEDIUM);
 			RCC->APB2ENR |= RCC_APB2ENR_USART6EN;
 			u->rxbuf = uart6_rx;
 			u->rxsize = sizeof(uart6_rx);

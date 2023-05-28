@@ -28,6 +28,7 @@ int _read_r(struct _reent* r, int file, char* ptr, int len)
 	{
 		ch = recvchar();
 		if (ch < 0) break;
+		if (ch == '\r') ch = '\n';
 		sendchar(ch);
 		ptr[i] = (char)ch;
 	}
