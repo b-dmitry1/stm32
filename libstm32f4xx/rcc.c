@@ -16,6 +16,15 @@
 #define Q_MIN		2
 #define Q_MAX		15
 
+#define N_SAI_MIN	49
+#define N_SAI_MAX	432
+
+#define R_SAI_MIN	2
+#define R_SAI_MAX	7
+
+#define Q_SAI_MIN	2
+#define Q_SAI_MAX	15
+
 #define SYSCLK_MAX	168000000
 #define AHB_MAX		168000000
 #define APB1_MAX	42000000
@@ -145,6 +154,42 @@ static void rcc_update_frequences(int hse_freq, int input_hse, int m, int n, int
 
 #include <stdio.h>
 
+int rcc_configure_pllsai(int n, int r, int q)
+{
+	// Turn off PLL
+	RCC->CR &= ~(RCC_CR_PLLSAION);
+	while (RCC->CR & RCC_CR_PLLSAIRDY);
+
+	// Set PLL R
+	RCC->PLLSAICFGR &= ~(0x7 << 28u);
+	if (r < R_SAI_MIN || r > R_SAI_MAX)
+	{
+		r = R_SAI_MAX;
+	}
+	RCC->PLLSAICFGR |= r << 28u;
+
+	// Set PLL Q
+	RCC->PLLSAICFGR &= ~(0xF << 24u);
+	if (q < Q_SAI_MIN || q > Q_SAI_MAX)
+	{
+		q = Q_SAI_MAX;
+	}
+	RCC->PLLSAICFGR |= q << 24u;
+
+	// Set PLL N
+	RCC->PLLSAICFGR &= ~(0x1FF << 6u);
+	if (n < N_SAI_MIN || n > N_SAI_MAX)
+	{
+		n = N_SAI_MIN;
+	}
+	RCC->PLLSAICFGR |= n << 6u;
+
+	RCC->CR |= RCC_CR_PLLSAION;
+	while (!(RCC->CR & RCC_CR_PLLSAIRDY));
+
+	return 1;
+}
+
 int rcc_configure_pll(int hse_freq, int input_hse, int m, int n, int p, int q, int ahb_div, int apb1_div, int apb2_div)
 {
         int enable_pll = m > 0;
@@ -159,8 +204,8 @@ int rcc_configure_pll(int hse_freq, int input_hse, int m, int n, int p, int q, i
 	rcc_use_hsi_as_system_clock();
 
 	// Turn off PLL
-	RCC->CR &= ~(RCC_CR_PLLON);
-	while (RCC->CR & RCC_CR_PLLRDY);
+	RCC->CR &= ~(RCC_CR_PLLON | RCC_CR_PLLSAION);
+	while (RCC->CR & (RCC_CR_PLLRDY | RCC_CR_PLLSAIRDY));
 
 	// Turn off HSE
 	RCC->CR &= ~RCC_CR_HSEON;
@@ -273,6 +318,8 @@ int rcc_configure_pll(int hse_freq, int input_hse, int m, int n, int p, int q, i
 		else
 			rcc_use_hsi_as_system_clock();
 	}
+
+	rcc_configure_pllsai(n, 7, 15);
 
 	return 1;
 }

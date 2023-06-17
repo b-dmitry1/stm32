@@ -35,6 +35,8 @@ extern "C" {
 // port: 0 - A, 1 - B, ...
 // Pin configuration functions
 void pin_conf(int port, int pin, int func, int mode, int type, int pull, int speed);
+void pin_conf_port(int port, int pinmask, int func, int mode, int type, int pull, int speed);
+
 void pin_conf_output(int port, int pin);
 void pin_conf_opendrain(int port, int pin);
 void pin_conf_input_pullup(int port, int pin);

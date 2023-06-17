@@ -20,6 +20,14 @@ void pin_conf(int port, int pin, int func, int mode, int type, int pull, int spe
 	g->PUPDR = (g->PUPDR & (~(3ul << (pin * 2)))) | (pull << (pin * 2));
 }
 
+void pin_conf_port(int port, int pinmask, int func, int mode, int type, int pull, int speed)
+{
+	int pin;
+	for (pin = 0; pin < 16; pin++)
+		if (pinmask & (1 << pin))
+			pin_conf(port, pin, func, mode, type, pull, speed);
+}
+
 void pin_conf_output(int port, int pin)
 {
 	pin_conf(port, pin, 0, PIN_MODE_OUTPUT, PIN_TYPE_PUSHPULL, PIN_PULL_FLOAT, PIN_SPEED_HIGH);

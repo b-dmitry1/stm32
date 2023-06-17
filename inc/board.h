@@ -18,6 +18,7 @@
 #include "timer.h"
 #include "flash.h"
 #include "ltdc.h"
+#include "sdram.h"
 
 #define WEAK __attribute__ ((weak))
 #define PACKED	__attribute__((__packed__))
