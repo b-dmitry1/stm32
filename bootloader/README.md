@@ -16,7 +16,9 @@ To compile a single project use a "_compile.bat" script from a project's directo
 Please change the path to your STM programmer util in the "_write.bat" file.
 
 ### Compiling on a Linux host
-- Under development -
+Run "make MCU=(model)"
+
+where (model) is 103, 105, 407, or 429.
 
 ### To use it in your system
 * Set RS232/RS485 parameters in bootloader/config.h file.

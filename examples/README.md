@@ -14,6 +14,11 @@
 To compile a single project use a "_compile.bat" script from a project's directory.
 
 ### Compiling on a Linux host
-- Under development -
+Run "make MCU=(model)"
 
-Please change the path to your STM programmer util in the "_write.bat" file if you are working in a Windows environment.
+where (model) is 103, 105, 407, or 429.
+
+### Flashing
+Please change the path to your STM programmer util in a "_write.bat" file if you are working in a Windows environment.
+
+On a Linux machine please select appropriate openocd's script in a "_write.sh" script. To make this script executable type "chmod +x _write.sh".
