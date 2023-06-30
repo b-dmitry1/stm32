@@ -2,6 +2,15 @@
 #include <string.h>
 #include "board.h"
 
+#ifndef STM32F429_439xx
+int main(void)
+{
+	// No LTDC
+	for (;;);
+}
+
+#else
+
 #define SCREEN_WIDTH	640
 #define SCREEN_HEIGHT	480
 
@@ -141,3 +150,5 @@ int main(void)
 
 	for (;;);
 }
+
+#endif

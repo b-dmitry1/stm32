@@ -20,6 +20,8 @@ int main(void)
 
 	for (;;)
 	{
+		putchar('.');
+
 		// This will echo the char back
 		getchar();
 	}

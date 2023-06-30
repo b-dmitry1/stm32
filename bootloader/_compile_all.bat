@@ -1,7 +1,7 @@
 @echo off
 
 rem Set your CPU name here
-set "cpu=f407"
+set "cpu=f401"
 
 
 echo Target CPU: "%cpu%"

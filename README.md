@@ -1,7 +1,20 @@
 # STM32 small library and examples
-* Small library for STM32F103, STM32F105(107), STM32F405(407, 429, 439).
+* Small library for STM32F103, STM32F105(107), STM32F401, STM32F405(407), STM32F429(439).
 * Usage examples.
 * Bootloader.
+
+Status:
+
+| Demo       | f103 | f105 | f401cc | f407 | f429 |
+| ---------- | ---- | ---- | ------ | ---- | ---- |
+| Bootloader |      | ok   |        | ok   | ok   |
+| Blinky     | ok   | ok   | ok     | ok   | ok   |
+| UART       | ok   | ok   | ok     | ok   | ok   |
+| Timer      | ok   | ok   | ok     | ok   | ok   |
+| fm25 (SPI) |      | ok   |        | ok   | ok   |
+| VGA (LTDC) | n/a  | n/a  | n/a    | n/a  | ok   |
+
+Bootloader PC app: in progress.
 
 ## Setting up the environment
 

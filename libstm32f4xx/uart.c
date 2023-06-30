@@ -90,6 +90,7 @@ void USART2_IRQHandler(void)
 	uart_irq(1);
 }
 
+#ifndef STM32F401xx
 void USART3_IRQHandler(void)
 {
 	uart_irq(2);
@@ -104,6 +105,7 @@ void UART5_IRQHandler(void)
 {
 	uart_irq(4);
 }
+#endif
 
 void USART6_IRQHandler(void)
 {
@@ -116,9 +118,11 @@ void uart_disable_irq(int port)
 	{
 		case 1: NVIC_DisableIRQ(USART1_IRQn); break;
 		case 2: NVIC_DisableIRQ(USART2_IRQn); break;
+#ifndef STM32F401xx
 		case 3: NVIC_DisableIRQ(USART3_IRQn); break;
 		case 4: NVIC_DisableIRQ(UART4_IRQn); break;
 		case 5: NVIC_DisableIRQ(UART5_IRQn); break;
+#endif
 		case 6: NVIC_DisableIRQ(USART6_IRQn); break;
 	}
 }
@@ -129,9 +133,11 @@ void uart_enable_irq(int port)
 	{
 		case 1: NVIC_EnableIRQ(USART1_IRQn); break;
 		case 2: NVIC_EnableIRQ(USART2_IRQn); break;
+#ifndef STM32F401xx
 		case 3: NVIC_EnableIRQ(USART3_IRQn); break;
 		case 4: NVIC_EnableIRQ(UART4_IRQn); break;
 		case 5: NVIC_EnableIRQ(UART5_IRQn); break;
+#endif
 		case 6: NVIC_EnableIRQ(USART6_IRQn); break;
 	}
 }
@@ -152,9 +158,11 @@ void uart_open(int port, unsigned long speed, int datasize, int parity, int stop
 	{
 		case 1: USART1->CR1 = 0; break;
 		case 2: USART2->CR1 = 0; break;
+#ifndef STM32F401xx
 		case 3: USART3->CR1 = 0; break;
 		case 4: UART4->CR1 = 0; break;
 		case 5: UART5->CR1 = 0; break;
+#endif
 		case 6: USART6->CR1 = 0; break;
 	}
 
@@ -184,6 +192,7 @@ void uart_open(int port, unsigned long speed, int datasize, int parity, int stop
 			u->txsize = sizeof(uart2_tx);
 			u->usart = USART2;
 			break;
+#ifndef STM32F401xx
 		case 3:
 			RCC->APB1ENR |= RCC_APB1ENR_USART3EN;
 			u->rxbuf = uart3_rx;
@@ -208,6 +217,7 @@ void uart_open(int port, unsigned long speed, int datasize, int parity, int stop
 			u->txsize = sizeof(uart5_tx);
 			u->usart = UART5;
 			break;
+#endif
 		case 6:
 			RCC->APB2ENR |= RCC_APB2ENR_USART6EN;
 			u->rxbuf = uart6_rx;
@@ -291,9 +301,11 @@ void uart_close(int port)
 	{
 		case 1: USART1->CR1 = 0; break;
 		case 2: USART2->CR1 = 0; break;
+#ifndef STM32F401xx
 		case 3: USART3->CR1 = 0; break;
 		case 4: UART4->CR1 = 0; break;
 		case 5: UART5->CR1 = 0; break;
+#endif
 		case 6: USART6->CR1 = 0; break;
 	}
 }

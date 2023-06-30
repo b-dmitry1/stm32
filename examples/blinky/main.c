@@ -1,6 +1,6 @@
 #include "board.h"
 
-#define LED	PORTC, 13
+#define LED	PORTB, 10
 
 void wait(void)
 {
@@ -10,7 +10,7 @@ void wait(void)
 
 int main(void)
 {
-	rcc_high_performance(XTAL_16MHZ);
+	// rcc_high_performance(XTAL_16MHZ);
 
 	pin_conf_output(LED);
 

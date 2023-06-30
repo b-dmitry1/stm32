@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "board.h"
 
-#define LED	PORTD, 11
+#define LED	PORTB, 10
 
 #define RXD1	PORTA, 10
 #define TXD1	PORTA, 9

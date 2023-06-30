@@ -25,8 +25,14 @@
 #define Q_SAI_MIN	2
 #define Q_SAI_MAX	15
 
+#ifdef STM32F401xx
+#define SYSCLK_MAX	84000000
+#define AHB_MAX		84000000
+#else
 #define SYSCLK_MAX	168000000
 #define AHB_MAX		168000000
+#endif
+
 #define APB1_MAX	42000000
 #define APB2_MAX	84000000
 
@@ -39,7 +45,7 @@
 #define HSE_MIN		4000000
 #define HSE_MAX		26000000
 
-#define TARGET_FREQ	168000000
+#define TARGET_FREQ	SYSCLK_MAX
 
 int sysclk = HSI_FREQ;
 int ahbclk = HSI_FREQ;
@@ -319,7 +325,9 @@ int rcc_configure_pll(int hse_freq, int input_hse, int m, int n, int p, int q, i
 			rcc_use_hsi_as_system_clock();
 	}
 
+#ifndef STM32F401xx
 	rcc_configure_pllsai(n, 7, 15);
+#endif
 
 	return 1;
 }
