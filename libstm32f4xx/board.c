@@ -4,9 +4,14 @@
 
 volatile int ticks = 0;
 
+void WEAK tick_func(void)
+{
+}
+
 void timer4_func(void)
 {
 	ticks++;
+	tick_func();
 }
 
 void WEAK msleep(int ms)
@@ -46,5 +51,11 @@ void board_init(void)
 
 	/* Need Timer 4 to measure time intervals */
 	/* SysTick can be used instead but it is reserved for RTOS */
+	timer_init_periodic_ns(4, TIMER_PERIOD_MS(1), timer4_func);
+}
+
+void clock_changed(void)
+{
+	// Reprogram system timer
 	timer_init_periodic_ns(4, TIMER_PERIOD_MS(1), timer4_func);
 }

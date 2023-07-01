@@ -84,13 +84,13 @@ void timer_init_periodic_ns(int number, unsigned long long period_ns, void (*cal
 	unsigned int clk = (unsigned int)apb1clk;
 	unsigned int v;
 	unsigned int psc = 1;
-	
+
 	timer_disable_irq(number);
 
 	timer_power_on(number);
 
 	/* If APB1 prescaler != 1 then TIMCLK = clk x 2 */
-	if (RCC->CFGR & (0x7 << 8))
+	if (RCC->CFGR & (0x4 << 10))
 		clk *= 2;
 
 	regs = tim_regs(number);

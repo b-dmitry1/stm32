@@ -30,6 +30,7 @@ extern "C" {
 #endif
 
 void board_init(void);
+void clock_changed(void);
 void WEAK msleep(int ms);
 int get_tick_count(void);
 

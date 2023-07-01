@@ -329,6 +329,8 @@ int rcc_configure_pll(int hse_freq, int input_hse, int m, int n, int p, int q, i
 	rcc_configure_pllsai(n, 7, 15);
 #endif
 
+	clock_changed();
+
 	return 1;
 }
 
@@ -403,7 +405,7 @@ void rcc_high_performance(int hse_freq)
 			}
 		}
 		
-		for (apb2_div = 2; apb2_div <= 8; apb2_div *= 2)
+		for (apb2_div = 1; apb2_div <= 8; apb2_div *= 2)
 		{
 			if (freq / apb2_div <= APB2_MAX)
 			{
