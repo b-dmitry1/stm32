@@ -12,6 +12,7 @@ Status:
 | UART       | ok   | ok   | ok     | ok   | ok   |
 | Timer      | ok   | ok   | ok     | ok   | ok   |
 | fm25 (SPI) |      | ok   |        | ok   | ok   |
+| SoftUSB    |      |      | ok     | ok   | ok   |
 | VGA (LTDC) | n/a  | n/a  | n/a    | n/a  | ok   |
 
 Bootloader PC app: in progress.
