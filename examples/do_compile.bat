@@ -27,9 +27,21 @@ for %%f in ("..\..\lib%cpufamily%\*.c") do (
   set c=!c!%%f 
 )
 
+if "%freertos%" == "1" (
+  for %%f in ("..\..\FreeRTOS\*.c") do (
+    set c=!c!%%f 
+  )
+  for %%f in ("%freertos_port%\*.c") do (
+    set c=!c!%%f 
+  )
+  for %%f in ("..\..\FreeRTOS\portable\MemMang\heap_4.c") do (
+    rem set c=!c!%%f 
+  )
+)
+
 for %%f in (!c!) do (
   arm-none-eabi-g++ %cpuconfig% %cflags% ^
-  -I. -I..\..\inc -I..\..\inc\%cpufamily% -T%ld% -c ^
+  -I. -I..\..\inc -I..\..\inc\%cpufamily% -I..\..\FreeRTOS\include -I%freertos_port% -T%ld% -c ^
   %defines%  ^
   %%f -o bin\%%~nf.o
 

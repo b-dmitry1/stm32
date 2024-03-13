@@ -44,3 +44,9 @@ void board_init(void)
 	/* SysTick can be used instead but it is reserved for RTOS */
 	timer_init_periodic_ns(4, TIMER_PERIOD_MS(1), timer4_func);
 }
+
+void clock_changed(void)
+{
+	// Reprogram system timer
+	timer_init_periodic_ns(4, TIMER_PERIOD_MS(1), timer4_func);
+}

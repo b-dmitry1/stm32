@@ -237,6 +237,8 @@ int rcc_configure_pll(int hse_freq, int input_hse, int hse_div, int pll_mul, int
 			rcc_use_pll_as_system_clock();
 	}
 
+	clock_changed();
+
 	return sysclk == input_hse ? hse_freq / hse_div * pll_mul : pll_mul >= 4 ? 4000000 * pll_mul : 8000000;
 }
 
