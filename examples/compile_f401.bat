@@ -10,8 +10,7 @@ set "ld=..\..\lib%cpufamily%\stm32f401.ld"
 
 rem Set device type here
 set "defines=-DSTM32F401xx -DSTM32F4XX -DCPU_FREQ=84000000"
-set "cpuconfig=-mcpu=cortex-m3 -mthumb -mfloat-abi=soft"
-rem set "cpuconfig=-mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16"
+set "cpuconfig=-mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16"
 
 
 set "cflags=-fmax-errors=3 -x none -fsigned-char -O2 -ffunction-sections -fdata-sections -fno-exceptions -mlittle-endian -g -lm -nostartfiles -Wall"

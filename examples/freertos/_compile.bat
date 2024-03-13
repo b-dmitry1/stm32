@@ -1,7 +1,7 @@
 @echo off
 
 rem Set your CPU name here
-if "%cpu%"=="" set "cpu=f429"
+if "%cpu%"=="" set "cpu=f401"
 
 rem Set to 1 if you need FreeRTOS
 set "freertos=1"

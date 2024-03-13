@@ -14,6 +14,7 @@ Status:
 | fm25 (SPI) |      | ok   |        | ok   | ok   |
 | SoftUSB    |      |      | ok     | ok   | ok   |
 | VGA (LTDC) | n/a  | n/a  | n/a    | n/a  | ok   |
+| FreeRTOS   | n/a  | n/a  | ok     | ok   | ok   |
 
 Bootloader PC app: in progress.
 
